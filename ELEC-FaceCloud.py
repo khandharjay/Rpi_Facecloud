@@ -40,54 +40,52 @@ def detect_and_draw(img, cascade):
     global haar_scale
     global min_neighbors
     for image_scale in range(1,5,1):
-    	while min_neighbors > 0 :
-		gray = cv.CreateImage((img.width,img.height), 8, 1)
-    		small_img = cv.CreateImage((cv.Round(img.width / image_scale),cv.Round (img.height / image_scale)), 8, 1)
-    
-	        global noface
-        	global current_time
-		global dailyfolder
+   	gray = cv.CreateImage((img.width,img.height), 8, 1)
+    	small_img = cv.CreateImage((cv.Round(img.width / image_scale),cv.Round (img.height / image_scale)), 8, 1)
+     
+        global noface
+       	global current_time
+	global dailyfolder
                
 
-		current_time=time.strftime("%H:%M:%S")
-		dailyfolder=time.strftime("%F")
-		FileName="/Detected-Faces/"
-		FileName=dailyfolder+FileName+current_time+"_Image_Scale_"+str(image_scale)+ "_Min_Neighbors_" + str(min_neighbors)  +".jpeg"
+	current_time=time.strftime("%H:%M:%S")
+	dailyfolder=time.strftime("%F")
+	FileName="/Detected-Faces/"
+	FileName=dailyfolder+FileName+current_time+"_Image_Scale_"+str(image_scale)+ "_Min_Neighbors_" + str(min_neighbors)  +".jpeg"
 
-		# convert color input image to grayscale
-		cv.CvtColor(img, gray, cv.CV_BGR2GRAY)
+	# convert color input image to grayscale
+	cv.CvtColor(img, gray, cv.CV_BGR2GRAY)
 
-		# scale input image for faster processing
-		cv.Resize(gray, small_img, cv.CV_INTER_LINEAR)
-		cv.EqualizeHist(small_img, small_img)
+	# scale input image for faster processing
+	cv.Resize(gray, small_img, cv.CV_INTER_LINEAR)
+	cv.EqualizeHist(small_img, small_img)
 
-		if(cascade):
-			t = clock()
-			faces = cv.HaarDetectObjects(small_img, cascade, cv.CreateMemStorage(0),
-										 haar_scale, min_neighbors, haar_flags, min_size)
-			t = clock() -t 
-                        min_neighbors = min_neighbors - 1
-			if faces:
-				for ((x, y, w, h), n) in faces:
-					# the input to cv.HaarDetectObjects was resized, so scale the
-					# bounding box of each face and convert it to two CvPoints
-					pt1 = (int(x * image_scale), int(y * image_scale))
-					pt2 = (int((x + w) * image_scale), int((y + h) * image_scale))
-					cv.Rectangle(img, pt1, pt2, cv.RGB(255, 0, 0), 3, 8, 0)
-					#### DEBUG ### 
-					#IO.LEDON()
-					#wait(10)
-					#IO.LEDOFF()
-					#save image  update log 
-				cv.SaveImage(FileName,img)
-				f.updatelog(t,image_scale,min_neighbors)
+	if(cascade):
+		t = clock()
+		faces = cv.HaarDetectObjects(small_img, cascade, cv.CreateMemStorage(0),haar_scale, min_neighbors, haar_flags, min_size)
+		t = clock() -t 
+               
+		if faces:
+			for ((x, y, w, h), n) in faces:
+				# the input to cv.HaarDetectObjects was resized, so scale the
+				# bounding box of each face and convert it to two CvPoints
+				pt1 = (int(x * image_scale), int(y * image_scale))
+				pt2 = (int((x + w) * image_scale), int((y + h) * image_scale))
+				cv.Rectangle(img, pt1, pt2, cv.RGB(255, 0, 0), 3, 8, 0)
+				#### DEBUG ### 
+				#IO.LEDON()
+				#wait(10)
+				#IO.LEDOFF()
+				#save image  update log 
+			cv.SaveImage(FileName,img)
+			f.updatelog(t,image_scale,min_neighbors)
 
-				del(gray)
-				del(small_img)
+			del(gray)
+			del(small_img)
 
-			else:
-				del(gray)
-				del(small_img)
+		else:
+			del(gray)
+			del(small_img)
 
 
 def USBCameraSetup(): 
